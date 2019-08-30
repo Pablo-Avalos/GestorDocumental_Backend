@@ -8,3 +8,6 @@ DIGITALIZACIÓN: En la solapa de digitalizaciones, se selecciona un proceso, sub
 
 CONSULTA: En la solapa de búsqueda, se ingresan los filtros necesarios para buscar un documento, estos podrían ser el cliente, proceso, subproceso y operación, o bien la solicitud de digitalización. Cuando se obtiene un resultado en la búsqueda, se hace click en el botón ver para poder visualizar el documento.
 
+
+Gestor Documental Frontend: https://github.com/Pablo-Avalos/GestorDocumental_Frontend.git
+
