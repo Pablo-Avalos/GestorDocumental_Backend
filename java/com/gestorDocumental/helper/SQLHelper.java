@@ -12,6 +12,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 
+import com.gestorDocumental.model.MDocumentoDigital;
+import com.gestorDocumental.service.DocumentoDigitalService;
+
 public class SQLHelper {
 	static final Logger LOG = LoggerFactory.getLogger(SQLHelper.class);
 
@@ -150,20 +153,19 @@ public class SQLHelper {
 		
 	}
 	
-	public List<String> obtenerDocumentosDeSubproceso(String subproceso) throws SQLException {
+	public List<String> obtenerTiposDocumentosDeSubproceso(String proceso, String subproceso) throws SQLException {
 
 		Connection con = this.getConnection();
-		String querySubproceso = "SELECT DESCRIPCION FROM GestorDocumental.DOCUMENTO;";
-		List<String> subprocesos=new ArrayList<String>();
+		String querySubproceso = "SELECT TIPODOCUMENTO FROM GestorDocumental.DOCPROCESOSUBPROCESO WHERE PROCESO= '" + proceso + "' and SUBPROCESO = '" + subproceso +"'";
+		List<String> tiposDocumentales=new ArrayList<String>();
 		
 		try {
 			Statement stmt = con.createStatement();
-			//stmt.executeUpdate(queryTest);
 			ResultSet rs = stmt.executeQuery(querySubproceso);
 			while (rs.next()) {
-				  subprocesos.add(rs.getString("DESCRIPCION"));
+				tiposDocumentales.add(rs.getString("TIPODOCUMENTO"));
 			}
-			return subprocesos;
+			return tiposDocumentales;
 			
 		}  catch (Exception e) {
 			LOG.error(e.getMessage());
@@ -184,7 +186,50 @@ public class SQLHelper {
 			}
 		}
 		
-		return subprocesos;
+		return tiposDocumentales;
 		
+	}
+	
+	public List<MDocumentoDigital> obtenerDocumentos(String proceso, String subproceso) throws SQLException {
+
+		//Connection con = this.getConnection();
+		//String querySubproceso = "SELECT * FROM GestorDocumental.DIGITALIZACION WHERE PROCESO= '" + proceso + "' and SUBPROCESO = '" + subproceso +"' and OPERACION = '" + operacion +"' and CLIENTE= '" + cliente +"';";
+		DocumentoDigitalService doc = new DocumentoDigitalService();
+		List<MDocumentoDigital> digitales=new ArrayList<>();
+		digitales.addAll(doc.obtenerPorProcesoSubProcesoYOperacion(proceso, subproceso,"1234"));
+		/*
+		List<String> digitales=new ArrayList<String>();
+		
+		
+		try {
+			Statement stmt = con.createStatement();
+			ResultSet rs = stmt.executeQuery(querySubproceso);
+			while (rs.next()) {
+				digitales.add(rs.getString("ID"));
+			}
+			return digitales;
+			
+		}  catch (Exception e) {
+			LOG.error(e.getMessage());
+			try {
+				if (con != null) {
+					con.rollback();
+				}
+			} catch (SQLException e2) {
+				LOG.error(e2.getMessage());
+			}
+		} finally {
+			try {
+				if (con != null)
+					con.close();
+
+			} catch (Exception e) {
+				LOG.error(e.getMessage());
+			}
+		}
+		
+		return digitales;
+		*/
+		return digitales;
 	}
 }
