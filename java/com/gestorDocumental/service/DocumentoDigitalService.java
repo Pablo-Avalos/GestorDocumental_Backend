@@ -10,7 +10,9 @@ import org.springframework.stereotype.Service;
 import com.gestorDocumental.converter.Convertidor;
 import com.gestorDocumental.entity.DocumentoDigital;
 import com.gestorDocumental.model.MDocumentoDigital;
+import com.gestorDocumental.model.MProceso;
 import com.gestorDocumental.repository.DocumentoDigitalRepositorio;
+import com.gestorDocumental.repository.ProcesoRepositorio;
 
 @Service("DigitalService")
 public class DocumentoDigitalService {
@@ -23,6 +25,10 @@ public class DocumentoDigitalService {
 	@Autowired 
 	@Qualifier("repositorio")
 	private DocumentoDigitalRepositorio repositorio;
+
+	@Autowired 
+	@Qualifier("procesoRepositorio")
+	private ProcesoRepositorio procesoRepositorio;
 
 	public boolean crearDocumentoDigital(DocumentoDigital digital) {
 		try {
@@ -63,6 +69,24 @@ public class DocumentoDigitalService {
 		digitales.addAll(convertidor.convertirLista(repositorio.findByProcesoAndSubprocesoAndOperacion(proceso, subproceso, operacion)));
 		System.out.println("Se encontraron: " + digitales.size());
 		return (digitales);
+	}
+	
+	public List<MProceso> obtenerProcesos(){
+		List<MProceso> procesos = new ArrayList<>();
+		procesos.addAll(convertidor.convertirListaProcesos(procesoRepositorio.findAll()));
+		return procesos;
+	}
+
+	public List<MDocumentoDigital> obtenerPorCliente(String cliente) {
+		List<MDocumentoDigital> digitales = new ArrayList<>(); 
+		digitales.addAll(convertidor.convertirLista(repositorio.findByCliente(cliente)));
+		return digitales;
+	}
+
+	public List<MDocumentoDigital> obtenerPorProcesoSubProceso(String proceso, String subproceso) {
+		List<MDocumentoDigital> digitales = new ArrayList<>(); 
+		digitales.addAll(convertidor.convertirLista(repositorio.findByProcesoAndSubproceso(proceso,subproceso)));
+		return digitales;
 	}
 
 }

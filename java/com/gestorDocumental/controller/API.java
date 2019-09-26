@@ -6,6 +6,7 @@ import java.util.List;
 
 import javax.validation.Valid;
 
+import org.hibernate.hql.internal.ast.tree.IsNullLogicOperatorNode;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.gestorDocumental.helper.SQLHelper;
 import com.gestorDocumental.model.MDocumentoDigital;
+import com.gestorDocumental.model.MProceso;
 import com.gestorDocumental.service.DocumentoDigitalService;
 
 @RestController
@@ -72,11 +74,10 @@ public class API {
 
 	@RequestMapping
 	(value = "/obtenerProceso", method = RequestMethod.POST)
-	public List<String> obtenerProceso() throws IOException {
-		List<String> procesos=new ArrayList<String>();
-		//String legajo = "pablo";
+	public List<MProceso> obtenerProceso() throws IOException {
+		List<MProceso> procesos=new ArrayList<>();
 		try {
-			procesos = sqlHelper.obtenerProceso();
+			procesos = docDigiService.obtenerProcesos();
 			return(procesos);
 		}catch(Exception e){
 			e.printStackTrace();
@@ -115,7 +116,14 @@ public class API {
 			String proceso = object.getString("proceso");
 			String subproceso = object.getString("subproceso");
 			String operacion = object.getString("operacion");
-			tiposDocumentales = docDigiService.obtenerPorProcesoSubProcesoYOperacion(proceso,subproceso,operacion);
+			System.out.println("La operacion es: " + operacion);
+			if(operacion.isEmpty()) {
+				tiposDocumentales = docDigiService.obtenerPorProcesoSubProceso(proceso,subproceso);
+				System.out.println("Busqueda solo por proceso y subproceso");
+			}else {
+				System.out.println("Busqueda solo por proceso, subproceso y operacion");
+				tiposDocumentales = docDigiService.obtenerPorProcesoSubProcesoYOperacion(proceso,subproceso,operacion);
+			}
 			return(tiposDocumentales);
 		}catch(Exception e){
 			e.printStackTrace();
@@ -124,5 +132,23 @@ public class API {
 		}finally{
 		}
 		return(tiposDocumentales);			
+	}
+	
+	@RequestMapping
+	(value = "/obtenerDocumentosPorCliente", method = RequestMethod.POST)
+	public List<MDocumentoDigital> obtenerDocumentosPorCliente(@Valid @RequestBody String body) throws IOException {
+		List<MDocumentoDigital> documentos = new ArrayList<>();
+		try {
+			JSONObject object = new JSONObject(body);
+			String cliente = object.getString("cliente");
+			documentos = docDigiService.obtenerPorCliente(cliente);
+			return(documentos);
+		}catch(Exception e){
+			e.printStackTrace();
+			LOG.error("Error: " + e.getMessage());
+			System.out.println(body);
+		}finally{
+		}
+		return(documentos);			
 	}
 }

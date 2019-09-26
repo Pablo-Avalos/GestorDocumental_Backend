@@ -11,14 +11,20 @@ public class MDocumentoDigital {
 		this.subproceso = docDigital.getSubproceso();
 		this.operacion = docDigital.getOperacion();
 		this.documento = docDigital.getDocumento();
+		this.cliente = docDigital.getCliente();
+		this.legajo = docDigital.getLegajo();
+		
 	}
 	
-	public MDocumentoDigital(Integer id,String proceso, String subproceso, String operacion, String documento) {
+	public MDocumentoDigital(Integer id,String proceso, String subproceso, String operacion, String documento, 
+			String cliente, String legajo) {
 		this.id = id;
 		this.proceso = proceso;
 		this.subproceso = subproceso;
 		this.operacion = operacion;
 		this.documento = documento;
+		this.cliente= cliente;
+		this.legajo= legajo;
 	}
 	
 	private long id;
@@ -26,6 +32,8 @@ public class MDocumentoDigital {
 	private String subproceso;
 	private String operacion;
 	private String documento;
+	private String cliente;
+	private String legajo;
 	public long getId() {
 		return id;
 	}
@@ -64,5 +72,21 @@ public class MDocumentoDigital {
 
 	public void setDocumento(String documento) {
 		this.documento = documento;
+	}
+
+	public String getCliente() {
+		return cliente;
+	}
+
+	public void setCliente(String cliente) {
+		this.cliente = cliente;
+	}
+
+	public String getLegajo() {
+		return legajo;
+	}
+
+	public void setLegajo(String legajo) {
+		this.legajo = legajo;
 	}
 }
