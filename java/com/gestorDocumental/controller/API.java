@@ -1,12 +1,16 @@
 package com.gestorDocumental.controller;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.validation.Valid;
 
-import org.hibernate.hql.internal.ast.tree.IsNullLogicOperatorNode;
+import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +22,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.gestorDocumental.entity.DocumentoDigital;
 import com.gestorDocumental.helper.SQLHelper;
+import com.gestorDocumental.model.MCliente;
 import com.gestorDocumental.model.MDocumentoDigital;
 import com.gestorDocumental.model.MProceso;
 import com.gestorDocumental.service.DocumentoDigitalService;
@@ -151,4 +157,91 @@ public class API {
 		}
 		return(documentos);			
 	}
+	
+	@RequestMapping
+	(value = "/obtenerClientePorNumero", method = RequestMethod.POST)
+	public MCliente obtenerClientePorNumero(@Valid @RequestBody String body) throws IOException {
+		MCliente cliente = null;
+		try {
+			JSONObject object = new JSONObject(body);
+			Integer nroCliente = object.getInt("numeroCliente");
+			cliente = docDigiService.obtenerPorNumero(nroCliente);
+			return(cliente);
+		}catch(Exception e){
+			e.printStackTrace();
+			LOG.error("Error: " + e.getMessage());
+			System.out.println(body);
+		}finally{
+		}
+		return(cliente);			
+	}
+
+	@RequestMapping
+	(value = "/guardarDigital", method = RequestMethod.POST)
+	public long guardarDigital(@Valid @RequestBody String body) throws IOException {
+		DocumentoDigital documento = null;
+		try {
+			JSONObject object = new JSONObject(body);
+			Integer solicitud = object.getInt("solicitud");
+			String proceso = object.getString("proceso");
+			String subProceso = object.getString("subProceso");
+			String operacion = object.getString("operacion");
+			String tipoDocumento = object.getString("tipoDocumento");
+			String razonSocial = object.getString("razonSocial");
+			
+			documento = new DocumentoDigital (proceso, subProceso, operacion,tipoDocumento,razonSocial,"pablo");
+			documento.setId(solicitud);
+			docDigiService.actualizarDocumentoDigital(documento);
+			return(1);
+		}catch(Exception e){
+			e.printStackTrace();
+			LOG.error("Error: " + e.getMessage());
+			System.out.println(body);
+		}finally{
+		}
+		return(0);			
+	}
+	
+	// MediaType.APPLICATION_JSON 
+	@RequestMapping(value = "/enviarPdf", produces = "application/json", consumes = "application/pdf", method = RequestMethod.POST)
+	public long enviarPdf(InputStream pdfStream) throws IOException {
+		
+		DocumentoDigital documento = new DocumentoDigital();
+		long id = docDigiService.crearDocumentoDigital(documento);
+				
+	    	    File targetFile = new File("src/main/resources/documento_"+id+".pdf");
+	    	    OutputStream outStream = new FileOutputStream(targetFile);
+	    	    
+	    	 
+	    	    byte[] buffer = new byte[8 * 1024];
+	    	    int bytesRead;
+	    	    while ((bytesRead = pdfStream.read(buffer)) != -1) {
+	    	        outStream.write(buffer, 0, bytesRead);
+	    	    }
+	    	    IOUtils.closeQuietly(pdfStream);
+	    	    IOUtils.closeQuietly(outStream);
+	    	
+		/*
+		DocumentoDigital documento = null;
+		try {
+			JSONObject object = new JSONObject(body);
+			String proceso = object.getString("proceso");
+			String subProceso = object.getString("subProceso");
+			String operacion = object.getString("operacion");
+			String tipoDocumento = object.getString("tipoDocumento");
+			String razonSocial = object.getString("razonSocial");
+			
+			documento = new DocumentoDigital (proceso, subProceso, operacion,tipoDocumento,razonSocial,"pablo");
+			long resul = docDigiService.crearDocumentoDigital(documento);
+			return(resul);
+		}catch(Exception e){
+			e.printStackTrace();
+			LOG.error("Error: " + e.getMessage());
+			System.out.println(body);
+		}finally{
+		}
+		*/
+		return(id);			
+	}
+
 }

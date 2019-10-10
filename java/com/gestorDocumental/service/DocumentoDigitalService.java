@@ -9,8 +9,10 @@ import org.springframework.stereotype.Service;
 
 import com.gestorDocumental.converter.Convertidor;
 import com.gestorDocumental.entity.DocumentoDigital;
+import com.gestorDocumental.model.MCliente;
 import com.gestorDocumental.model.MDocumentoDigital;
 import com.gestorDocumental.model.MProceso;
+import com.gestorDocumental.repository.ClienteRepositorio;
 import com.gestorDocumental.repository.DocumentoDigitalRepositorio;
 import com.gestorDocumental.repository.ProcesoRepositorio;
 
@@ -29,13 +31,18 @@ public class DocumentoDigitalService {
 	@Autowired 
 	@Qualifier("procesoRepositorio")
 	private ProcesoRepositorio procesoRepositorio;
+	
+	@Autowired 
+	@Qualifier("clienteRepositorio")
+	private ClienteRepositorio clienteRepositorio;
 
-	public boolean crearDocumentoDigital(DocumentoDigital digital) {
+	public long crearDocumentoDigital(DocumentoDigital digital) {
 		try {
 			repositorio.save(digital);
-			return true;
+			//repositorio.findByProcesoAndSubprocesoAndOperacion (digital.getProceso(),digital.getSubproceso(),digital.getOperacion());
+			return digital.getId();
 		}catch(Exception e) {
-			return false;	
+			return 0;	
 		}
 	}
 	
@@ -77,9 +84,9 @@ public class DocumentoDigitalService {
 		return procesos;
 	}
 
-	public List<MDocumentoDigital> obtenerPorCliente(String cliente) {
+	public List<MDocumentoDigital> obtenerPorCliente(String clienteDU) {
 		List<MDocumentoDigital> digitales = new ArrayList<>(); 
-		digitales.addAll(convertidor.convertirLista(repositorio.findByCliente(cliente)));
+		digitales.addAll(convertidor.convertirLista(repositorio.findByCliente(clienteDU)));
 		return digitales;
 	}
 
@@ -87,6 +94,10 @@ public class DocumentoDigitalService {
 		List<MDocumentoDigital> digitales = new ArrayList<>(); 
 		digitales.addAll(convertidor.convertirLista(repositorio.findByProcesoAndSubproceso(proceso,subproceso)));
 		return digitales;
+	}
+
+	public MCliente obtenerPorNumero(Integer numero) {
+		return (convertidor.convertirCliente(this.clienteRepositorio.findByNumeroCliente(numero)));
 	}
 
 }

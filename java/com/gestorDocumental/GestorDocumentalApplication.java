@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
+import com.gestorDocumental.entity.Cliente;
 import com.gestorDocumental.helper.SQLHelper;
 
 
@@ -25,6 +26,10 @@ public class GestorDocumentalApplication {
 	@Bean
 	public SQLHelper getSQLHelper() {
 		return new SQLHelper();
+	}
+	@Bean
+	public Cliente getCliente() {
+		return new Cliente();
 	}
 	//@Bean
 	//public DocumentoDigitalRepositorio getDocumentoDigitalRepositorio() {

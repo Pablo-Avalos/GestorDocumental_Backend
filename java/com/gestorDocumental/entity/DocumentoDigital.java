@@ -16,8 +16,7 @@ public class DocumentoDigital implements Serializable{
 	 */
 	private static final long serialVersionUID = 1L;
 
-	public DocumentoDigital(long id, String proceso, String subproceso, String operacion, String documento, String cliente, String legajo) {
-		this.id = id;
+	public DocumentoDigital(String proceso, String subproceso, String operacion, String documento, String cliente, String legajo) {
 		this.proceso = proceso;
 		this.subproceso = subproceso;
 		this.operacion = operacion;

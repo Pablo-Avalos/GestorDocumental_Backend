@@ -5,8 +5,10 @@ import java.util.List;
 
 import org.springframework.stereotype.Component;
 
+import com.gestorDocumental.entity.Cliente;
 import com.gestorDocumental.entity.DocumentoDigital;
 import com.gestorDocumental.entity.Proceso;
+import com.gestorDocumental.model.MCliente;
 import com.gestorDocumental.model.MDocumentoDigital;
 import com.gestorDocumental.model.MProceso;
 
@@ -31,4 +33,10 @@ public class Convertidor {
 		}
 		return mprocesos;
 	}
+	
+	public MCliente convertirCliente(Cliente cliente) {
+		return new MCliente(cliente);
+	}
+
+	
 }
