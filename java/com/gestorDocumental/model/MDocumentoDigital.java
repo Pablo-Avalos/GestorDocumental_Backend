@@ -13,11 +13,12 @@ public class MDocumentoDigital {
 		this.documento = docDigital.getDocumento();
 		this.cliente = docDigital.getCliente();
 		this.legajo = docDigital.getLegajo();
+		this.base64 = docDigital.getBase64();
 		
 	}
 	
 	public MDocumentoDigital(Integer id,String proceso, String subproceso, String operacion, String documento, 
-			String cliente, String legajo) {
+			String cliente, String legajo, String base64) {
 		this.id = id;
 		this.proceso = proceso;
 		this.subproceso = subproceso;
@@ -25,6 +26,7 @@ public class MDocumentoDigital {
 		this.documento = documento;
 		this.cliente= cliente;
 		this.legajo= legajo;
+		this.base64 = base64;
 	}
 	
 	private long id;
@@ -34,6 +36,15 @@ public class MDocumentoDigital {
 	private String documento;
 	private String cliente;
 	private String legajo;
+	private String base64;
+	public String getBase64() {
+		return base64;
+	}
+
+	public void setBase64(String base64) {
+		this.base64 = base64;
+	}
+
 	public long getId() {
 		return id;
 	}

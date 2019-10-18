@@ -16,13 +16,14 @@ public class DocumentoDigital implements Serializable{
 	 */
 	private static final long serialVersionUID = 1L;
 
-	public DocumentoDigital(String proceso, String subproceso, String operacion, String documento, String cliente, String legajo) {
+	public DocumentoDigital(String proceso, String subproceso, String operacion, String documento, String cliente, String legajo, String base64) {
 		this.proceso = proceso;
 		this.subproceso = subproceso;
 		this.operacion = operacion;
 		this.documento = documento;
 		this.cliente = cliente;
 		this.legajo = legajo;
+		this.base64 = base64;
 		
 	}
 	
@@ -50,6 +51,18 @@ public class DocumentoDigital implements Serializable{
 	
 	@Column(name = "LEGAJO")
 	private String legajo;
+
+	@Column(name = "BASE64")
+	private String base64;
+	
+	public String getBase64() {
+		return base64;
+	}
+
+	public void setBase64(String base64) {
+		this.base64 = base64;
+	}
+
 	public long getId() {
 		return id;
 	}

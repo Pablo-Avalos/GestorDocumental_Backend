@@ -99,5 +99,9 @@ public class DocumentoDigitalService {
 	public MCliente obtenerPorNumero(Integer numero) {
 		return (convertidor.convertirCliente(this.clienteRepositorio.findByNumeroCliente(numero)));
 	}
+	
+	public MDocumentoDigital obtenerPorIdDeDocumento(long numero) {
+		return (convertidor.convertirDocumento(this.repositorio.findById(numero)));
+	}
 
 }

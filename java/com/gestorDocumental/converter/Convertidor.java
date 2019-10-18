@@ -14,6 +14,9 @@ import com.gestorDocumental.model.MProceso;
 
 @Component("convertidor")
 public class Convertidor {
+	public MDocumentoDigital convertirDocumento (DocumentoDigital documento){
+			return (new MDocumentoDigital(documento));
+	}
 	public List<MDocumentoDigital> convertirLista (List<DocumentoDigital> documentos){
 		List<MDocumentoDigital> mdigitales = new ArrayList<>();
 		for(DocumentoDigital digital: documentos) {
