@@ -39,7 +39,7 @@ public class FTPHelper {
  
         ftp.addProtocolCommandListener(new PrintCommandListener(new PrintWriter(System.out)));
  
-        ftp.connect("192.168.1.49", 21);
+        ftp.connect(server, port);
         int reply = ftp.getReplyCode();
         if (!FTPReply.isPositiveCompletion(reply)) {
             ftp.disconnect();
@@ -87,4 +87,5 @@ public class FTPHelper {
           .map(FTPFile::getName)
           .collect(Collectors.toList());
     }
+    
 }
