@@ -14,17 +14,16 @@ public class Cliente implements Serializable{
 
 	private static final long serialVersionUID = 1L;
 
-	@GeneratedValue
 	@Id	
-	@Column(name = "NUMEROCLIENTE")
-	private Integer numeroCliente;
+	@Column(name = "NUMEROCLIENTE",unique=true)
+	private long numeroCliente;
 	
 	@Column(name = "RAZONSOCIAL")
 	private String razonSocial;
 	
 	public Cliente() {}
 	
-	public Cliente(String razonSocial, Integer nroCliente) {
+	public Cliente(String razonSocial, long nroCliente) {
 		this.razonSocial = razonSocial;
 		this.numeroCliente = nroCliente;
 	}
@@ -37,11 +36,11 @@ public class Cliente implements Serializable{
 		this.razonSocial = razonSocial;
 	}
 
-	public Integer getNumeroCliente() {
+	public long getNumeroCliente() {
 		return numeroCliente;
 	}
 
-	public void setNumeroCliente(Integer numeroCliente) {
+	public void setNumeroCliente(long numeroCliente) {
 		this.numeroCliente = numeroCliente;
 	}
 

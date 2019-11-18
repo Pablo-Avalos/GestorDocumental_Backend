@@ -1,15 +1,16 @@
 package com.gestorDocumental.repository;
 import java.io.Serializable;
-import org.springframework.data.jpa.repository.JpaRepository;
-import com.gestorDocumental.entity.Cliente;
-//import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-//import org.springframework.stereotype.Repository;
+import java.util.List;
 
-//@Repository ("clienteRepositorio")
-//@EnableJpaRepositories("com.gestorDocumental.repository")	
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+
+import com.gestorDocumental.entity.Cliente;
+	
 public interface ClienteRepositorio extends JpaRepository<Cliente,Serializable>{
-//	public abstract ClienteEmpresa findByCUIT(long id);
 	public abstract Cliente findByRazonSocial(String razonSocial);
-	public abstract Cliente findByNumeroCliente(Integer clienteCUIT);
-	//public abstract Cliente updateBySolicitud findByNumeroCliente(Integer clienteCUIT);
+	public abstract Cliente findByNumeroCliente(Integer nroCliente);
+	
+	@Query("SELECT f.numeroCliente FROM Cliente f")
+	public abstract List<Object> obtenerNumerosCliente();
 }

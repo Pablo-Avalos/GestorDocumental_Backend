@@ -5,17 +5,16 @@ import java.io.ByteArrayOutputStream;
 //import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-//import java.io.ObjectOutputStream;
-//import java.io.OutputStream;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.HashSet;
 import java.util.List;
 
 import javax.validation.Valid;
-//import javax.xml.bind.DatatypeConverter;
 
-//import org.apache.tomcat.util.http.fileupload.IOUtils;
-//import org.aspectj.bridge.Message;
+import org.hibernate.mapping.Set;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,12 +28,18 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.gestorDocumental.entity.Cliente;
 import com.gestorDocumental.entity.DocumentoDigital;
+import com.gestorDocumental.entity.Proceso;
+import com.gestorDocumental.entity.SubProceso;
+import com.gestorDocumental.entity.TipoDocumento;
 import com.gestorDocumental.helper.SQLHelper;
 //import com.gestorDocumental.helper.FTPHelper;
 import com.gestorDocumental.model.MCliente;
 import com.gestorDocumental.model.MDocumentoDigital;
 import com.gestorDocumental.model.MProceso;
+import com.gestorDocumental.model.MSubProceso;
+import com.gestorDocumental.model.MTipoDocumento;
 import com.gestorDocumental.service.DocumentoDigitalService;
 
 @RestController
@@ -45,48 +50,34 @@ public class API {
 	static final Logger LOG = LoggerFactory.getLogger(API.class);
 	@Autowired
 	private SQLHelper sqlHelper;
-	//@Autowired
-	//private FTPHelper ftpHelper;
 	@Autowired
 	@Qualifier("DigitalService")
 	private DocumentoDigitalService docDigiService;
 
-	@RequestMapping(value = "/guardarDocumento", method = RequestMethod.POST)
-	public ResponseEntity<String> guardarDocumento(@Valid @RequestBody String body) throws IOException {
-		String ubicacion = null;
-		try {
-			JSONObject object = new JSONObject(body);
-			String documentoDescripcion = object.getString("documentoTipo");
-			ubicacion = sqlHelper.guardarDocumento(documentoDescripcion, 1, 2);
-			return new ResponseEntity<String>(ubicacion,HttpStatus.OK);
-		} catch (Exception e) {
-			e.printStackTrace();
-			LOG.error("Error: " + e.getMessage());
-			System.out.println(body);
-		} finally {
-		}
-		return new ResponseEntity<String>(ubicacion,HttpStatus.OK);
-	}
-
 	@RequestMapping(value = "/obtenerSubproceso", method = RequestMethod.POST)
-	public ResponseEntity<List<String>> obtenerSubproceso(@Valid @RequestBody String body) throws IOException {
-		List<String> subprocesos = new ArrayList<String>();
-		// String legajo = "pablo";
+	public ResponseEntity<List<Object>> obtenerSubproceso(@Valid @RequestBody String body) throws IOException {
+		List<Object> subprocesos = new ArrayList<>();
 		try {
 			JSONObject object = new JSONObject(body);
-			String proceso = object.getString("procesoTipo");
-			subprocesos = sqlHelper.obtenerSubproceso(proceso);
-			new ResponseEntity<List<String>>(subprocesos,HttpStatus.OK);
+			Integer id = object.getInt("codigoProceso");
+			//subprocesos = docDigiService.obtenerSubproceso(proceso);
+			
+			Proceso proceso = new Proceso();
+			//proceso.setDescripcion("Comex");
+			proceso.setId(id);
+			subprocesos = docDigiService.obtenerSubProcesosDeProceso(proceso);
+			
+			new ResponseEntity<List<Object>>(subprocesos,HttpStatus.OK);
 		} catch (Exception e) {
 			e.printStackTrace();
 			LOG.error("Error: " + e.getMessage());
 			System.out.println(body);
 		} finally {
 		}
-		return new ResponseEntity<List<String>>(subprocesos,HttpStatus.OK);
+		return new ResponseEntity<List<Object>>(subprocesos,HttpStatus.OK);
 	}
 
-	@RequestMapping(value = "/obtenerProceso", method = RequestMethod.POST)
+	@RequestMapping(value = "/obtenerProceso", method = RequestMethod.GET)
 	public ResponseEntity<List<MProceso>> obtenerProceso() throws IOException {
 		List<MProceso> procesos = new ArrayList<>();
 		try {
@@ -101,22 +92,21 @@ public class API {
 	}
 
 	@RequestMapping(value = "/obtenerTiposDocumentosDeSubproceso", method = RequestMethod.POST)
-	public ResponseEntity<List<String>> obtenerTiposDocumentosDeSubproceso(@Valid @RequestBody String body) throws IOException {
-		List<String> tiposDocumentales = new ArrayList<String>();
+	public ResponseEntity<List<Object>> obtenerTiposDocumentosDeSubproceso(@Valid @RequestBody String body) throws IOException {
+		List<Object> tiposDocumentales = new ArrayList<Object>();
 		// String legajo = "pablo";
 		try {
 			JSONObject object = new JSONObject(body);
-			String proceso = object.getString("proceso");
 			String subproceso = object.getString("subproceso");
-			tiposDocumentales = sqlHelper.obtenerTiposDocumentosDeSubproceso(proceso, subproceso);
-			return new ResponseEntity<List<String>>(tiposDocumentales,HttpStatus.OK);
+			tiposDocumentales = docDigiService.documentosDeSubproceso(subproceso);
+			return new ResponseEntity<List<Object>>(tiposDocumentales,HttpStatus.OK);
 		} catch (Exception e) {
 			e.printStackTrace();
 			LOG.error("Error: " + e.getMessage());
 			System.out.println(body);
 		} finally {
 		}
-		return new ResponseEntity<List<String>>(tiposDocumentales,HttpStatus.OK);
+		return new ResponseEntity<List<Object>>(tiposDocumentales,HttpStatus.OK);
 	}
 
 	@RequestMapping(value = "/obtenerDocumentos", method = RequestMethod.POST)
@@ -127,12 +117,9 @@ public class API {
 			String proceso = object.getString("proceso");
 			String subproceso = object.getString("subproceso");
 			String operacion = object.getString("operacion");
-			System.out.println("La operacion es: " + operacion);
 			if (operacion.isEmpty()) {
 				tiposDocumentales = docDigiService.obtenerPorProcesoSubProceso(proceso, subproceso);
-				System.out.println("Busqueda solo por proceso y subproceso");
 			} else {
-				System.out.println("Busqueda solo por proceso, subproceso y operacion");
 				tiposDocumentales = docDigiService.obtenerPorProcesoSubProcesoYOperacion(proceso, subproceso,
 						operacion);
 			}
@@ -180,6 +167,20 @@ public class API {
 		return new ResponseEntity<MCliente>(cliente,HttpStatus.OK);
 	}
 
+	@RequestMapping(value = "/obtenerNumerosDeClientes", method = RequestMethod.GET)
+	public ResponseEntity<List<Object>> obtenerNumerosDeClientes() throws IOException {
+		List<Object> cliente = null;
+		try {
+			cliente = docDigiService.obtenerNumerosCliente();
+			return new ResponseEntity<List<Object>>(cliente,HttpStatus.OK);
+		} catch (Exception e) {
+			e.printStackTrace();
+			LOG.error("Error: " + e.getMessage());
+		} finally {
+		}
+		return new ResponseEntity<List<Object>>(cliente,HttpStatus.OK);
+	}
+	
 	@RequestMapping(value = "/guardarDigital", method = RequestMethod.POST)
 	public ResponseEntity<Integer> guardarDigital(@Valid @RequestBody String body) throws IOException {
 		DocumentoDigital documento = null;
@@ -228,75 +229,264 @@ public class API {
 			documento.setBase64(pdf);
 			docDigiService.actualizarDocumentoDigital(documento);
 			System.out.println("se guardo el base 64 del documento");
-
-			//FileOutputStream outStream = null;
-
-			// String filePath = "src/main/resources/";
-			// String newFileName = "doc_"+ id + ".pdf";
-			// outStream = new FileOutputStream(filePath + newFileName);
-
-			// byte[] decoded;
-			// decoded = DatatypeConverter.parseBase64Binary(pdf);
-			// outStream.write(decoded);
-			// outStream.flush();
-			// outStream.close();
-
 		} catch (Exception e) {
 			e.printStackTrace();
 			LOG.error("Error: " + e.getMessage());
 		} finally {
-			// Thread.sleep(20000);
-			// System.out.println("se va a mover el doc");
-			// File file = new File("src/main/resources/doc_" + id +".pdf");
-			// String nombre = ("doc_" + id + ".pdf");
-			// outStream.close();
-			// ftpHelper.open();
-			// ftpHelper.putFileToFolder(file, nombre);
-			// ftpHelper.close();
 		}
 		return new ResponseEntity<Integer>(id,HttpStatus.OK);
 	}
-/*
-	@RequestMapping(value = "/obtenerBase64PDF", method = RequestMethod.POST)
-	public MDocumentoDigital enviarBase64PDF(@Valid @RequestBody String body) throws IOException {
-
-		System.out.println("se llamo al servicio");
-		MDocumentoDigital pdf = null;
-		// DocumentoDigital pdf = new DocumentoDigital();
+	
+	@RequestMapping(value = "/todosLosSubprocesos", method = RequestMethod.GET)
+	public ResponseEntity<List<String>> todosLosSubprocesos() throws IOException {
+		List<String> subProcesos = new ArrayList<>();
 		try {
-
-			JSONObject object = new JSONObject(body);
-			Integer id = object.getInt("id");
-			pdf = docDigiService.obtenerPorIdDeDocumento(id);
+			subProcesos = docDigiService.obtenerSubProcesos();
+			return new ResponseEntity<List<String>>(subProcesos,HttpStatus.OK);
 		} catch (Exception e) {
-			LOG.error("Error al ejecutar query " + e.getMessage());
 			e.printStackTrace();
+			LOG.error("Error: " + e.getMessage());
+		} finally {
 		}
-		return pdf;
+		return new ResponseEntity<List<String>>(subProcesos,HttpStatus.OK);
+	}
+	
+	@RequestMapping(value = "/guardarProceso", method = RequestMethod.POST)
+	public ResponseEntity<Integer> guardarProceso(@Valid @RequestBody String body) throws IOException {
+		try {
+			JSONObject object = new JSONObject(body);
+			//JSONArray procesos = object.getJSONArray("procesos");
+			//for (int i = 0; i < procesos.length(); i++) {
+			    String descripcion = object.getString("procesoTipo");
+			    Proceso proceso = new Proceso();
+			    proceso.setDescripcion(descripcion);
+				docDigiService.altaDeProceso(proceso);
+			//}
+			return new ResponseEntity<Integer>(0,HttpStatus.OK);
+		} catch (Exception e) {
+			e.printStackTrace();
+			LOG.error("Error: " + e.getMessage());
+			System.out.println(body);
+		} finally {
+		}
+		return new ResponseEntity<Integer>(0,HttpStatus.OK);
+	}
+
+	/*
+	@RequestMapping(value = "/eliminarProceso", method = RequestMethod.POST)
+	public ResponseEntity<Boolean> eliminarProceso(@Valid @RequestBody String body) throws IOException {
+		try {
+			JSONObject object = new JSONObject(body);
+			String descripcion = object.getString("descripcion");
+			TipoDocumento documento;
+			Boolean eliminado = false;
+			documento= docDigiService.tiposDocumentosPorDescripcion(descripcion);
+			if(documento == null) {
+				eliminado = false;
+			}else {
+				docDigiService.eliminarTipoDocumento(documento);
+				eliminado = true;
+			}
+			return new ResponseEntity<Boolean>(eliminado,HttpStatus.OK);
+		} catch (Exception e) {
+			e.printStackTrace();
+			LOG.error("Error: " + e.getMessage());
+			System.out.println(body);
+		} finally {
+		}
+		return new ResponseEntity<Boolean>(false,HttpStatus.OK);
 	}
 	*/
+	
+	@RequestMapping(value = "/todosLosTiposDocumentales", method = RequestMethod.GET)
+	public ResponseEntity<List<MTipoDocumento>> todosLosTiposDocumentales() throws IOException {
+		List<MTipoDocumento> tiposDocumentales = new ArrayList<>();
+		try {
+			tiposDocumentales = docDigiService.obtenerTiposDocumentales();
+			return new ResponseEntity<List<MTipoDocumento>>(tiposDocumentales,HttpStatus.OK);
+		} catch (Exception e) {
+			e.printStackTrace();
+			LOG.error("Error: " + e.getMessage());
+		} finally {
+		}
+		return new ResponseEntity<List<MTipoDocumento>>(tiposDocumentales,HttpStatus.OK);
+	}
+	
+	@RequestMapping(value = "/documentosDeSubproceso", method = RequestMethod.POST)
+	public ResponseEntity<List<Object>> documentosDeSubproceso(@Valid @RequestBody String body) throws IOException {
+		List<Object> tiposDocumentales = new ArrayList<>();
+		try {
+			JSONObject object = new JSONObject(body);
+			String subproceso = object.getString("subproceso");
+			tiposDocumentales = docDigiService.documentosDeSubproceso(subproceso);
+			return new ResponseEntity<List<Object>>(tiposDocumentales,HttpStatus.OK);
+			//return new ResponseEntity<List<Object>>(tiposDocumentales,HttpStatus.OK);
+		} catch (Exception e) {
+			e.printStackTrace();
+			LOG.error("Error: " + e.getMessage());
+			System.out.println(body);
+		} finally {
+		}
+		return new ResponseEntity<List<Object>>(tiposDocumentales,HttpStatus.OK);
+	}
+	
+	@RequestMapping(value = "/guardarTipoDocumento", method = RequestMethod.POST)
+	public ResponseEntity<Boolean> guardarTipoDocumento(@Valid @RequestBody String body) throws IOException {
+		try {
+			JSONObject object = new JSONObject(body);
+			String descripcion = object.getString("descripcion");
+			Integer id = object.getInt("id");
+			Integer subprocesoid = object.getInt("subproceso");
+			String descripcionS = object.getString("descripcionS");
+			SubProceso s = new SubProceso();
+			s.setId(id);
+			s.setDescripcion(descripcionS);
+			s.setSubproceso(subprocesoid);
+			//ArrayList<SubProceso> ss = new ArrayList<>();
+			//ss.add(s);
+			TipoDocumento tipoDocumento = new TipoDocumento();
+			tipoDocumento.setDescripcion(descripcion);
+			//tipoDocumento.getSubProcesos().add(s);
+			//System.out.println(tipoDocumento.getSubProcesos());
+			docDigiService.altaDeTipoDocumento(tipoDocumento);
+			return new ResponseEntity<Boolean>(true,HttpStatus.OK);
+		} catch (Exception e) {
+			e.printStackTrace();
+			LOG.error("Error: " + e.getMessage());
+			System.out.println(body);
+		} finally {
+		}
+		return new ResponseEntity<Boolean>(false,HttpStatus.OK);
+	}
 	/*
-	 * @RequestMapping(value = "/recibirPDF", method = RequestMethod.POST) public
-	 * long recibirPDF(InputStream is) throws IOException {
-	 * 
-	 * DocumentoDigital documento = new DocumentoDigital(); long id =
-	 * docDigiService.crearDocumentoDigital(documento);
-	 * 
-	 * ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-	 * 
-	 * int nRead; byte[] data = new byte[16384];
-	 * 
-	 * while ((nRead = is.read(data, 0, data.length)) != -1) { buffer.write(data, 0,
-	 * nRead); }
-	 * 
-	 * buffer.toByteArray();
-	 * 
-	 * documento.setBase64(Base64.getEncoder().encodeToString(buffer.toByteArray()))
-	 * ;
-	 * 
-	 * return id;
-	 * 
-	 * 
-	 * }
-	 */
+	@RequestMapping(value = "/eliminarTipoDocumento", method = RequestMethod.POST)
+	public ResponseEntity<Boolean> eliminarTipoDocumento(@Valid @RequestBody String body) throws IOException {
+		try {
+			JSONObject object = new JSONObject(body);
+			String descripcion = object.getString("descripcion");
+			TipoDocumento documento;
+			Boolean eliminado = false;
+			documento= docDigiService.tiposDocumentosPorDescripcion(descripcion);
+			SubProceso s = new SubProceso();
+			s.setId(1);
+			if(documento == null) {
+				eliminado = false;
+			}else {
+				docDigiService.eliminarTiposDcouemntalesDeSubProceso(documento,s);
+				docDigiService.eliminarTipoDocumento(documento);
+				eliminado = true;
+			}
+			return new ResponseEntity<Boolean>(eliminado,HttpStatus.OK);
+		} catch (Exception e) {
+			e.printStackTrace();
+			LOG.error("Error: " + e.getMessage());
+			System.out.println(body);
+		} finally {
+		}
+		return new ResponseEntity<Boolean>(false,HttpStatus.OK);
+	}
+	*/
+	
+	@RequestMapping(value = "/guardarSubproceso", method = RequestMethod.POST)
+	public ResponseEntity<Boolean> guardarSubproceso(@Valid @RequestBody String body) throws IOException {
+		SubProceso subproceso = new SubProceso();
+		try {
+			HashSet<TipoDocumento> documentos = new HashSet<TipoDocumento>();
+			JSONObject object = new JSONObject(body);
+			String subProcesoDescripcion = object.getString("subProcesoDescripcion");
+			String procesoDescripcion = object.getString("procesoDescripcion");
+			Integer procesoId = object.getInt("procesoId");
+			JSONArray tiposDocumentos = object.getJSONArray("tiposDocumentos");
+			Proceso proceso = new Proceso();
+			proceso.setDescripcion(procesoDescripcion);
+			proceso.setId(procesoId);
+			for (int i = 0; i < tiposDocumentos.length(); i++) {
+			    String descripcion = tiposDocumentos.getJSONObject(i).getString("descripcion");
+			    Integer id = tiposDocumentos.getJSONObject(i).getInt("id");
+			    TipoDocumento tipoDocumento = new TipoDocumento();
+			    tipoDocumento.setDescripcion(descripcion);
+			    tipoDocumento.setId(id);
+			    documentos.add(tipoDocumento);
+			}
+			subproceso.setDescripcion(subProcesoDescripcion);
+			subproceso.setProcesoObjeto(proceso);
+			subproceso.setTiposDocumentos(documentos);
+			docDigiService.altaDeSubProceso(subproceso);
+			return new ResponseEntity<Boolean>(true,HttpStatus.OK);
+		} catch (Exception e) {
+			e.printStackTrace();
+			LOG.error("Error: " + e.getMessage());
+			System.out.println(body);
+		} finally {
+		}
+		return new ResponseEntity<Boolean>(false,HttpStatus.OK);
+	}
+
+	@RequestMapping(value = "/eliminarSubproceso", method = RequestMethod.POST)
+	public ResponseEntity<Integer> eliminarSubproceso(@Valid @RequestBody String body) throws IOException {
+		SubProceso subproceso = new SubProceso();
+		try {
+			JSONObject object = new JSONObject(body);
+			String descripcion = object.getString("descripcion");
+			Integer id = object.getInt("id");
+			Integer nroSubProceso = object.getInt("subproceso");
+			subproceso.setDescripcion(descripcion);
+			subproceso.setId(id);
+			subproceso.setProceso(nroSubProceso);
+			docDigiService.borrarSubProceso(subproceso);
+			return new ResponseEntity<Integer>(1,HttpStatus.OK);
+		} catch (Exception e) {
+			e.printStackTrace();
+			LOG.error("Error: " + e.getMessage());
+			System.out.println(body);
+		} finally {
+		}
+		return new ResponseEntity<Integer>(0,HttpStatus.OK);
+	}
+	
+	@RequestMapping(value = "/guardarCliente", method = RequestMethod.POST)
+	public ResponseEntity<Boolean> guardarCliente(@Valid @RequestBody String body) throws IOException {
+		Cliente cliente = new Cliente();
+		try {
+			JSONObject object = new JSONObject(body);
+			String razonSocial = object.getString("razonSocial");
+			//System.out.println("El cliente es: " + Integer.parseInt(object.getString("numeroCliente")));
+			long numeroCliente = object.getLong("numeroCliente");
+			cliente.setNumeroCliente(numeroCliente);
+			cliente.setRazonSocial(razonSocial);
+			docDigiService.guardarCliente(cliente);
+			return new ResponseEntity<Boolean>(true,HttpStatus.OK);
+		} catch (Exception e) {
+			e.printStackTrace();
+			LOG.error("Error: " + e.getMessage());
+			System.out.println(body);
+		} finally {
+		}
+		return new ResponseEntity<Boolean>(false,HttpStatus.OK);
+	}
+	
+	@RequestMapping(value = "/eliminarCliente", method = RequestMethod.POST)
+	public ResponseEntity<Boolean> eliminarCliente(@Valid @RequestBody String body) throws IOException {
+		Cliente cliente = new Cliente();
+		try {
+			JSONObject object = new JSONObject(body);
+			String razonSocial = object.getString("razonSocial");
+			Integer numeroCliente = object.getInt("numeroCliente");
+			cliente.setNumeroCliente(numeroCliente);
+			cliente.setRazonSocial(razonSocial);
+			if(docDigiService.obtenerNumerosCliente().contains(numeroCliente)) {
+				docDigiService.eliminarCliente(cliente);
+				return new ResponseEntity<Boolean>(true,HttpStatus.OK);
+			}else {
+				return new ResponseEntity<Boolean>(false,HttpStatus.OK);
+			}
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			LOG.error("Error: " + e.getMessage());
+			System.out.println(body);
+		} finally {
+		}
+		return new ResponseEntity<Boolean>(false,HttpStatus.OK);
+	}
 }

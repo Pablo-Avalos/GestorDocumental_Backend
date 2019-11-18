@@ -4,12 +4,12 @@ import com.gestorDocumental.entity.Cliente;
 
 public class MCliente {
 	String razonSocial;
-	Integer numeroCliente;
-	public Integer getNumeroCliente() {
+	long numeroCliente;
+	public long getNumeroCliente() {
 		return numeroCliente;
 	}
 
-	public void setNumeroCliente(Integer numeroCliente) {
+	public void setNumeroCliente(long numeroCliente) {
 		this.numeroCliente = numeroCliente;
 	}
 
