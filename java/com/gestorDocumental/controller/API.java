@@ -155,8 +155,8 @@ public class API {
 		MCliente cliente = null;
 		try {
 			JSONObject object = new JSONObject(body);
-			Integer nroCliente = object.getInt("numeroCliente");
-			cliente = docDigiService.obtenerPorNumero(nroCliente);
+			long numeroCliente = object.getLong("numeroCliente");
+			cliente = docDigiService.obtenerPorNumero(numeroCliente);
 			return new ResponseEntity<MCliente>(cliente,HttpStatus.OK);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -185,19 +185,48 @@ public class API {
 	public ResponseEntity<Integer> guardarDigital(@Valid @RequestBody String body) throws IOException {
 		DocumentoDigital documento = null;
 		try {
+			
 			JSONObject object = new JSONObject(body);
-			Integer solicitud = object.getInt("solicitud");
+			long solicitud = object.getLong("solicitud");
 			String proceso = object.getString("proceso");
 			String subProceso = object.getString("subProceso");
 			String operacion = object.getString("operacion");
 			String tipoDocumento = object.getString("tipoDocumento");
 			String razonSocial = object.getString("razonSocial");
-
-			documento = new DocumentoDigital(proceso, subProceso, operacion, tipoDocumento, razonSocial, "pablo", null);
+			long numeroCliente = object.getLong("numeroCliente");
+			//String blob = object.getString("blob");
+			//String s = object.getString("blob");
+			
+			System.out.println("solicitud: " + solicitud);
+			System.out.println("proceso" + proceso);
+			System.out.println("subproceso " + subProceso);
+			System.out.println("operacion " + operacion);
+			System.out.println("tipodcoumento " + tipoDocumento);
+			System.out.println("razonSocial " + razonSocial);
+			System.out.println("numeroCliente " + numeroCliente);
+			
+			System.out.println("######################################## El numero de cliente es: ##########################################################" + numeroCliente);
+			System.out.println("el numero de cliente es: " + numeroCliente);
+			//MCliente clienteObjeto = docDigiService.obtenerPorNumero(numeroCliente);
+			MCliente cliente = docDigiService.obtenerPorNumero(numeroCliente);
+			Cliente c = new Cliente();
+			
+			System.out.println("######################################## El numero obtenido es: ##########################################################" + cliente.getNumeroCliente());
+			System.out.println("######################################## La razon social es: ##########################################################" + cliente.getRazonSocial());
+			c.setNumeroCliente(cliente.getNumeroCliente());
+			c.setRazonSocial(cliente.getRazonSocial());
+			//c.setNumeroCliente(numeroCliente);
+			// agregar el objeto cliente en el constructor
+			//DocumentoDigital(String proceso, String subproceso, String operacion, String documento, String cliente, String legajo, String base64,Cliente clienteObjeto) {
+			documento = new DocumentoDigital(proceso, subProceso, operacion, tipoDocumento, razonSocial, "pablo", null,c);
 			documento.setId(solicitud);
-			documento.setBase64(docDigiService.obtenerPorIdDeDocumento(solicitud).getBase64());
+			//docDigiService.crearDocumentoDigital(documento);
+			System.out.println("se va a buscar por id: " + solicitud);
+			documento.setBase64(docDigiService.obtenerDigitalPorIdDeDocumento(solicitud).getBase64());
+			//System.out.println("Se obtiene el documento: " + docDigiService.obtenerDigitalPorIdDeDocumento(solicitud).getBase64());
+			//System.out.println("Obtener base" + docDigiService.base64(solicitud));
 			docDigiService.actualizarDocumentoDigital(documento);
-			return new ResponseEntity<Integer>((Integer)(int)documento.getId(),HttpStatus.OK);
+			return new ResponseEntity<Integer>((Integer)(int)0,HttpStatus.OK);
 		} catch (Exception e) {
 			e.printStackTrace();
 			LOG.error("Error: " + e.getMessage());
@@ -208,11 +237,11 @@ public class API {
 	}
 
 	@RequestMapping(value = "/enviarPdf", method = RequestMethod.POST)
-	public ResponseEntity<Integer> guardarPDF(InputStream is) throws IOException, InterruptedException {
+	public ResponseEntity<Long> guardarPDF(InputStream is) throws IOException, InterruptedException {
 
 		DocumentoDigital documento = new DocumentoDigital();
-		Integer id = (Integer)(int)docDigiService.crearDocumentoDigital(documento);
-		
+		long id = docDigiService.crearDocumentoDigital(documento);
+		System.out.println("############################### documentoguardado con id:" + id + " ########################");
 		try {
 			ByteArrayOutputStream buffer = new ByteArrayOutputStream();
 
@@ -228,13 +257,13 @@ public class API {
 			String pdf = Base64.getEncoder().encodeToString(buffer.toByteArray());
 			documento.setBase64(pdf);
 			docDigiService.actualizarDocumentoDigital(documento);
-			System.out.println("se guardo el base 64 del documento");
+			System.out.println("############################### se guardo el base 64 del documento ########################");
 		} catch (Exception e) {
 			e.printStackTrace();
 			LOG.error("Error: " + e.getMessage());
 		} finally {
 		}
-		return new ResponseEntity<Integer>(id,HttpStatus.OK);
+		return new ResponseEntity<Long>(id,HttpStatus.OK);
 	}
 	
 	@RequestMapping(value = "/todosLosSubprocesos", method = RequestMethod.GET)
@@ -335,13 +364,13 @@ public class API {
 		try {
 			JSONObject object = new JSONObject(body);
 			String descripcion = object.getString("descripcion");
-			Integer id = object.getInt("id");
-			Integer subprocesoid = object.getInt("subproceso");
-			String descripcionS = object.getString("descripcionS");
-			SubProceso s = new SubProceso();
-			s.setId(id);
-			s.setDescripcion(descripcionS);
-			s.setSubproceso(subprocesoid);
+			//Integer id = object.getInt("id");
+			//Integer subprocesoid = object.getInt("subproceso");
+			//String descripcionS = object.getString("descripcionS");
+			//SubProceso s = new SubProceso();
+			//s.setId(id);
+			//s.setDescripcion(descripcionS);
+			//s.setSubproceso(subprocesoid);
 			//ArrayList<SubProceso> ss = new ArrayList<>();
 			//ss.add(s);
 			TipoDocumento tipoDocumento = new TipoDocumento();

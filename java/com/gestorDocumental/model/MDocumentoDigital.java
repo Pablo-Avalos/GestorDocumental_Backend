@@ -1,5 +1,6 @@
 package com.gestorDocumental.model;
 
+import com.gestorDocumental.entity.Cliente;
 import com.gestorDocumental.entity.DocumentoDigital;
 
 public class MDocumentoDigital {
@@ -14,11 +15,12 @@ public class MDocumentoDigital {
 		this.cliente = docDigital.getCliente();
 		this.legajo = docDigital.getLegajo();
 		this.base64 = docDigital.getBase64();
+		this.clienteObjeto = docDigital.getClienteObjeto();
 		
 	}
-	
+		
 	public MDocumentoDigital(Integer id,String proceso, String subproceso, String operacion, String documento, 
-			String cliente, String legajo, String base64) {
+			String cliente, String legajo, String base64,Cliente clienteObjeto) {
 		this.id = id;
 		this.proceso = proceso;
 		this.subproceso = subproceso;
@@ -27,6 +29,8 @@ public class MDocumentoDigital {
 		this.cliente= cliente;
 		this.legajo= legajo;
 		this.base64 = base64;
+		this.clienteObjeto = clienteObjeto;
+		
 	}
 	
 	private long id;
@@ -37,6 +41,16 @@ public class MDocumentoDigital {
 	private String cliente;
 	private String legajo;
 	private String base64;
+	private Cliente clienteObjeto;
+
+	public Cliente getClienteObjeto() {
+		return clienteObjeto;
+	}
+
+	public void setClienteObjeto(Cliente clienteObjeto) {
+		this.clienteObjeto = clienteObjeto;
+	}
+
 	public String getBase64() {
 		return base64;
 	}

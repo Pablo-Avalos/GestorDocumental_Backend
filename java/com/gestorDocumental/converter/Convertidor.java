@@ -54,7 +54,7 @@ public class Convertidor {
 	}
 	
 	public MCliente convertirCliente(Cliente cliente) {
-		return new MCliente(cliente);
+		return new MCliente(cliente.getNumeroCliente(),cliente.getRazonSocial(),cliente.getDocumentos());
 	}
 	
 	public List<MTipoDocumento> convertirListaTiposDocumentos(List<TipoDocumento> tiposDocumentales) {

@@ -1,11 +1,14 @@
 package com.gestorDocumental.entity;
 
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 @Table(name = "cliente")
@@ -21,6 +24,17 @@ public class Cliente implements Serializable{
 	@Column(name = "RAZONSOCIAL")
 	private String razonSocial;
 	
+	@OneToMany(mappedBy = "cliente")
+	private Set<DocumentoDigital> documentos = new HashSet<>();
+
+	public Set<DocumentoDigital> getDocumentos() {
+		return documentos;
+	}
+
+	public void setDocumentos(Set<DocumentoDigital> documentos) {
+		this.documentos = documentos;
+	}
+
 	public Cliente() {}
 	
 	public Cliente(String razonSocial, long nroCliente) {

@@ -6,7 +6,10 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Table(name = "documentodigital")
 @Entity
@@ -16,7 +19,7 @@ public class DocumentoDigital implements Serializable{
 	 */
 	private static final long serialVersionUID = 1L;
 
-	public DocumentoDigital(String proceso, String subproceso, String operacion, String documento, String cliente, String legajo, String base64) {
+	public DocumentoDigital(String proceso, String subproceso, String operacion, String documento, String cliente, String legajo, String base64,Cliente clienteObjeto) {
 		this.proceso = proceso;
 		this.subproceso = subproceso;
 		this.operacion = operacion;
@@ -24,7 +27,7 @@ public class DocumentoDigital implements Serializable{
 		this.cliente = cliente;
 		this.legajo = legajo;
 		this.base64 = base64;
-		
+		this.clienteObjeto = clienteObjeto;
 	}
 	
 	public DocumentoDigital() {}
@@ -55,12 +58,24 @@ public class DocumentoDigital implements Serializable{
 	@Column(name = "BASE64")
 	private String base64;
 	
+	@JsonIgnore
+	@ManyToOne
+	private Cliente clienteObjeto;
+	
 	public String getBase64() {
 		return base64;
 	}
 
 	public void setBase64(String base64) {
 		this.base64 = base64;
+	}
+
+	public Cliente getClienteObjeto() {
+		return clienteObjeto;
+	}
+
+	public void setClienteObjeto(Cliente clienteObjeto) {
+		this.clienteObjeto = clienteObjeto;
 	}
 
 	public long getId() {

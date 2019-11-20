@@ -4,10 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import javax.persistence.ManyToOne;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.gestorDocumental.converter.Convertidor;
 import com.gestorDocumental.entity.Cliente;
 import com.gestorDocumental.entity.DocumentoDigital;
@@ -54,7 +57,8 @@ public class DocumentoDigitalService {
 	@Autowired 
 	@Qualifier("tipoDocumentoRepositorio")
 	private TipoDocumentoRepositorio tipoDocumentoRepositorio;
-
+	
+	
 	//@Autowired 
 	//@Qualifier("tiposDocumentoPorSubprocesoRepositorio")
 	//private TiposDocumentosDeSubProcesoRepositorio tiposDocumentoPorSubprocesoRepositorio;
@@ -119,13 +123,27 @@ public class DocumentoDigitalService {
 		return digitales;
 	}
 
-	public MCliente obtenerPorNumero(Integer nroCliente) {
+	public MCliente obtenerPorNumero(long nroCliente) {
 		return (convertidor.convertirCliente(this.clienteRepositorio.findByNumeroCliente(nroCliente)));
 	}
 	
+	public Cliente obtenerClientePorNumero(long nroCliente) {
+		return this.clienteRepositorio.findByNumeroCliente(nroCliente);
+	}
+	
 	public MDocumentoDigital obtenerPorIdDeDocumento(long numero) {
+		
 		return (convertidor.convertirDocumento(this.repositorio.findById(numero)));
 	}
+	
+	public DocumentoDigital obtenerDigitalPorIdDeDocumento(long numero) {
+		
+		return (this.repositorio.findById(numero));
+	}
+	
+	//public List<String> base64(long numero) {
+	//	return (this.repositorio.obtenerBase64(numero));
+	//}
 
 	public List<Object> obtenerSubProcesosDeProceso(Proceso proceso) {
 		List<Object> subProcesos = new ArrayList<>();
