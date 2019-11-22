@@ -1,14 +1,12 @@
 package com.gestorDocumental.repository;
 import java.io.Serializable;
-import java.math.BigInteger;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import com.gestorDocumental.entity.Cliente;
 import com.gestorDocumental.entity.DocumentoDigital;
 
 
@@ -17,13 +15,10 @@ import com.gestorDocumental.entity.DocumentoDigital;
 public interface DocumentoDigitalRepositorio extends JpaRepository<DocumentoDigital,Serializable>{
 	public abstract DocumentoDigital findById(long id);
 	public abstract List<DocumentoDigital> findByProcesoAndSubprocesoAndOperacion (String proceso,String subproceso,String operacion);
-	public abstract List<DocumentoDigital> findByCliente(String cliente);
 	public abstract List<DocumentoDigital> findByProcesoAndSubproceso(String proceso, String subproceso);
 	
-	//@Query("SELECT f.operacion FROM documentodigital f WHERE f.id = :id")
-	//String obtenerBase64(@Param("id") int id);
+	public abstract List<DocumentoDigital> findByClienteObjeto(Cliente clienteDU);
 	
-	//public abstract String obtenerBase64(long numero);
 }
 
 

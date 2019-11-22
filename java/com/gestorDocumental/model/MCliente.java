@@ -2,10 +2,7 @@ package com.gestorDocumental.model;
 
 import java.util.HashSet;
 import java.util.Set;
-
-import com.gestorDocumental.entity.Cliente;
 import com.gestorDocumental.entity.DocumentoDigital;
-import com.gestorDocumental.entity.SubProceso;
 
 public class MCliente {
 	String razonSocial;

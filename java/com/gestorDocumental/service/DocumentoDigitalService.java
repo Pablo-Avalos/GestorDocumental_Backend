@@ -2,15 +2,9 @@ package com.gestorDocumental.service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
-
-import javax.persistence.ManyToOne;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.gestorDocumental.converter.Convertidor;
 import com.gestorDocumental.entity.Cliente;
 import com.gestorDocumental.entity.DocumentoDigital;
@@ -20,14 +14,12 @@ import com.gestorDocumental.entity.TipoDocumento;
 import com.gestorDocumental.model.MCliente;
 import com.gestorDocumental.model.MDocumentoDigital;
 import com.gestorDocumental.model.MProceso;
-import com.gestorDocumental.model.MSubProceso;
 import com.gestorDocumental.model.MTipoDocumento;
 import com.gestorDocumental.repository.ClienteRepositorio;
 import com.gestorDocumental.repository.DocumentoDigitalRepositorio;
 import com.gestorDocumental.repository.ProcesoRepositorio;
 import com.gestorDocumental.repository.SubProcesoRepositorio;
 import com.gestorDocumental.repository.TipoDocumentoRepositorio;
-//import com.gestorDocumental.repository.TiposDocumentosDeSubProcesoRepositorio;
 
 @Service("DigitalService")
 public class DocumentoDigitalService {
@@ -106,14 +98,12 @@ public class DocumentoDigitalService {
 	}
 	
 	public List<MProceso> obtenerProcesos(){
-		//List<MProceso> procesos = new ArrayList<>();
 		return this.convertidor.convertirListaProcesos(procesoRepositorio.findAll());
-		//return procesos;
 	}
 
-	public List<MDocumentoDigital> obtenerPorCliente(String clienteDU) {
+	public List<MDocumentoDigital> obtenerPorCliente(Cliente clienteDU) {
 		List<MDocumentoDigital> digitales = new ArrayList<>(); 
-		digitales.addAll(convertidor.convertirLista(repositorio.findByCliente(clienteDU)));
+		digitales.addAll(convertidor.convertirLista(repositorio.findByClienteObjeto(clienteDU)));
 		return digitales;
 	}
 
@@ -141,10 +131,6 @@ public class DocumentoDigitalService {
 		return (this.repositorio.findById(numero));
 	}
 	
-	//public List<String> base64(long numero) {
-	//	return (this.repositorio.obtenerBase64(numero));
-	//}
-
 	public List<Object> obtenerSubProcesosDeProceso(Proceso proceso) {
 		List<Object> subProcesos = new ArrayList<>();
 		subProcesos.addAll(subProcesoRepositorio.obtenerSubProcesosDeProceso(proceso));
